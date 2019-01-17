@@ -17,7 +17,7 @@
 
 using namespace std;
 // change stack size with ulimit -s > 8 MB ? 
-const int LIMIT = 5000 ; 
+const int LIMIT = 500 ; 
 
 
 mutex array ; 
@@ -78,9 +78,9 @@ void draw (int rmin , int rmax , int cmin , int cmax , int AA , Object *world) {
 			}
 				col /= double(AA) ; 
 				RGB color ; 
-				color.r = int(255 * sqrt(col.r)) ; 
-				color.g = int(255 * sqrt(col.g)) ; 
-				color.b = int(255 * sqrt(col.b)) ; 
+				color.r = int(255 * col.r) ; 
+				color.g = int(255 * col.g) ; 
+				color.b = int(255 * col.b) ; 
 			lock_guard<mutex>lock(mutex);
 			image[i*column+j] = color ;
 
@@ -97,8 +97,8 @@ int main(int argv , char** argc){
 
 
 
-	Object *list[5]= {  new Sphere(glm::dvec3(0 , 0.3f , -1.2f) , 0.2f , new Metal(glm::dvec3(0.5 , 0.8 , 0.2) , 0.1)),
-			     new Sphere(glm::dvec3(0 , 100.5f , -1) , 100.f , new Lambert(glm::dvec3(0.8 , 0.6 , 0.2))),
+	Object *list[5]= {  new Sphere(glm::dvec3(0 , 0.3f , -1.2f) , 0.2f , new Metal(glm::dvec3(0.5 , 0.8 , 0.2) , 0.01)),
+			     new Sphere(glm::dvec3(0 , 100.5f , -1) , 100.f , new Metal(glm::dvec3(0.8 , 0.9 , 0.7) , 0. )),
 			     new Sphere(glm::dvec3(0.3f , 0.4f , -0.9f) , 0.1f , new Metal(glm::dvec3(0.1 , 0.1 , 0.1), 0.)),	
  			     new Sphere(glm::dvec3(-0.3f , 0.4f , -0.9f) , 0.1f , new Metal(glm::dvec3(0.9 , 0.5 , 0.5) , 0.7 )) , 
 			     new Sphere(glm::dvec3(0.f , 0.4f , -0.8f) , 0.12f , new Dielectric(2.5)) 
@@ -107,7 +107,7 @@ int main(int argv , char** argc){
 	}; 
 	Object *world = new Object_list(list , 5) ; 
 	
-	int AA = 80 ; 	
+	int AA = 20 ; 	
 	
 	int r1 , r2 , c1 , c2 ; 
 	bool r_div , c_div ; 

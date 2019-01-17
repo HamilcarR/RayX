@@ -101,7 +101,8 @@ bool Dielectric::scatter(const Ray& ray , const hit_record &rec , glm::dvec3 &at
 	double ni_nt ; 
 	attenuation = glm::dvec3(1.) ;
 	glm::dvec3 refracted ;
-	double reflect_prob ; 
+	double reflect_prob ;
+
 	double cosine ; 
 	if(glm::dot(ray.getDirection() , rec.normal) > 0) {
 		out_normal = -rec.normal; 
@@ -125,12 +126,14 @@ bool Dielectric::scatter(const Ray& ray , const hit_record &rec , glm::dvec3 &at
 		reflect_prob = 1.;
 
 	}
+
+	glm::dvec3 eps =  0.7e-11 * glm::normalize(rec.normal) ; 
 	if(drand48() < reflect_prob){
-		scattered = Ray(rec.position  , reflected) ;
+		scattered = Ray(rec.position + eps , reflected) ;
 
 	}
 	else{
-		scattered = Ray(rec.position   , refracted) ; 
+		scattered = Ray(rec.position + eps   , refracted) ; 
 
 	}
 	return true ; 
