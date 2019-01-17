@@ -1,1 +1,0 @@
-Raytracer in C 
