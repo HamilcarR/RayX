@@ -18,7 +18,7 @@ Sphere::Sphere(glm::dvec3 c , double r , Material* M) {
 
 
 Sphere::~Sphere(){
-
+	delete material ; 
 
 }
 

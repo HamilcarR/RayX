@@ -1,9 +1,9 @@
 
 CXX=g++-8
-CXXFLAGS=-g3 -std=c++17 -Wall -pedantic 
+CXXFLAGS=-g3 -std=c++17 -Wall -pedantic -pthread
 TEMPDIR=temp/
 BIN=RayX
-LIBS= 
+LIBS=-lpthread 
 CPPFLAGS=-I/usr/include/glm -I./includes
 SRC=$(wildcard src/*.cpp)
 OBJ=$(SRC:%.cpp=%.o) 

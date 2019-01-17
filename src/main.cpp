@@ -7,8 +7,8 @@
 #include "../includes/RayHit.h" 
 #include "../includes/Sphere.h" 
 #include <cfloat>
-
-
+#include <thread>
+#include <mutex>
 
 #define row 1000
 #define column 1000
@@ -18,6 +18,25 @@
 using namespace std;
 // change stack size with ulimit -s > 8 MB ? 
 const int LIMIT = 5000 ; 
+
+
+mutex array ; 
+RGB image[row*column] ; 
+glm::dvec3 llc(-2.f , -2.f , -2.f); 
+glm::dvec3 h(4.f , 0.f , 0.f) ; 
+glm::dvec3 v(0.f , 4.f , 0.f) ; 
+glm::dvec3 o(0.f , 0.2f , -0.1f) ; 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -45,32 +64,11 @@ glm::dvec3 color(Ray ray , Object *world, int limit){
 
 
 
-int main(int argv , char** argc){
+void draw (int rmin , int rmax , int cmin , int cmax , int AA , Object *world) {
 
-
-
-	glm::dvec3 llc(-2.f , -2.f , -2.f); 
-	glm::dvec3 h(4.f , 0.f , 0.f) ; 
-	glm::dvec3 v(0.f , 4.f , 0.f) ; 
-	glm::dvec3 o(0.f , 0.2f , -0.1f) ; 
-
-
-	Object *list[5]= {  new Sphere(glm::dvec3(0 , 0.3f , -1.2f) , 0.2f , new Metal(glm::dvec3(0.5 , 0.8 , 0.2) , 0.1)),
-			     new Sphere(glm::dvec3(0 , 100.5f , -1) , 100.f , new Lambert(glm::dvec3(0.8 , 0.6 , 0.2))),
-			     new Sphere(glm::dvec3(0.3f , 0.4f , -0.9f) , 0.1f , new Metal(glm::dvec3(0.1 , 0.1 , 0.1), 0.)),	
- 			     new Sphere(glm::dvec3(-0.3f , 0.4f , -0.9f) , 0.1f , new Metal(glm::dvec3(0.9 , 0.5 , 0.5) , 0.7 )) , 
-			     new Sphere(glm::dvec3(0.f , 0.4f , -0.8f) , 0.12f , new Dielectric(2.5)) 
 	
-	
-	}; 
-	Object *world = new Object_list(list , 5) ; 
-
-	int AA = 30 ; 	
-
-
-	RGB image[row*column] ; 
-	for(int i = 0 ; i < row ; i++)
-		for(int j = 0 ; j < column ; j++){
+	for(int i = rmin ; i < rmax ; i++)
+		for(int j = cmin ; j < cmax ; j++){
 			glm::dvec3 col(0.f , 0.f , 0.f) ;  
 			for(int s = 0 ; s < AA ; s++){
 				double x = double(j +drand48()) / double (column) ; 
@@ -83,10 +81,67 @@ int main(int argv , char** argc){
 				color.r = int(255 * sqrt(col.r)) ; 
 				color.g = int(255 * sqrt(col.g)) ; 
 				color.b = int(255 * sqrt(col.b)) ; 
-			
+			lock_guard<mutex>lock(mutex);
 			image[i*column+j] = color ;
 
 		}
+
+
+
+}
+
+
+
+int main(int argv , char** argc){
+
+
+
+
+	Object *list[5]= {  new Sphere(glm::dvec3(0 , 0.3f , -1.2f) , 0.2f , new Metal(glm::dvec3(0.5 , 0.8 , 0.2) , 0.1)),
+			     new Sphere(glm::dvec3(0 , 100.5f , -1) , 100.f , new Lambert(glm::dvec3(0.8 , 0.6 , 0.2))),
+			     new Sphere(glm::dvec3(0.3f , 0.4f , -0.9f) , 0.1f , new Metal(glm::dvec3(0.1 , 0.1 , 0.1), 0.)),	
+ 			     new Sphere(glm::dvec3(-0.3f , 0.4f , -0.9f) , 0.1f , new Metal(glm::dvec3(0.9 , 0.5 , 0.5) , 0.7 )) , 
+			     new Sphere(glm::dvec3(0.f , 0.4f , -0.8f) , 0.12f , new Dielectric(2.5)) 
+	
+	
+	}; 
+	Object *world = new Object_list(list , 5) ; 
+	
+	int AA = 80 ; 	
+	
+	int r1 , r2 , c1 , c2 ; 
+	bool r_div , c_div ; 
+	r_div = (row % 2 ) == 0 ? true : false ; 
+	c_div = (column % 2 ) == 0 ? true : false ; 
+
+	r1 = r_div ? row/2 : floor(row/2) ; 
+	r2 = r_div ? row/2 : floor(row/2) + 1 ; 
+	c1 = c_div ? column/2 : floor(column/2) ; 
+	c2 = c_div ? column/2 : floor(column/2) + 1 ; 
+
+
+	
+
+
+	std::thread t1(draw , 0 , r1 , 0 , c1 , AA , world) ; 
+	std::thread t2(draw , r1 , r1+r2 , c1 , c1+c2 , AA , world) ; 
+	std::thread t3(draw , r1 , r1+r2 , 0 , c1 , AA , world) ; 
+	std::thread t4(draw , 0 , r1 , c1 , c1+c2 , AA , world) ; 
+	
+
+	t1.join() ; 
+	t2.join() ; 
+	t3.join() ; 
+	t4.join() ; 
+
+
+
+
+
+
+
+
+
 	save_image(row , column , image);
 	delete world ; 
 	return EXIT_SUCCESS ; 
