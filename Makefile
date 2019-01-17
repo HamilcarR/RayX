@@ -1,17 +1,24 @@
 
+CXX=g++-8
+CXXFLAGS=-g3 -std=c++17 -Wall -pedantic 
+TEMPDIR=temp/
+BIN=RayX
+LIBS= 
+CPPFLAGS=-I/usr/include/glm -I./includes
+SRC=$(wildcard src/*.cpp)
+OBJ=$(SRC:%.cpp=%.o) 
 
 
-RayX : RayX.o BMPexporter.o 
-	gcc -o RayX RayX.o BMPexporter.o
+all: $(OBJ)
+	$(CXX) $^ -o $(BIN)   $(LIBS)
 
 
+%.o: %.c
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $@ -c $< 
+
+clean:
+	rm -f *.o
+	rm -f src/*.o
+	rm $(BIN) 
 
 
-BMPexporter.o : BMPexporter.c
-	gcc -o BMPexporter.o -c BMPexporter.c -Wall -ansi -pedantic -W
-
-
-
-
-RayX.o : RayX.c BMPexporter.h
-	gcc -o RayX.o -c RayX.c -W -Wall -ansi -pedantic
